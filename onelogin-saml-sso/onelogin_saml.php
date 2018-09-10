@@ -6,6 +6,7 @@ Description: Give users secure one-click access to WordPress from OneLogin. This
 Author: OneLogin, Inc.
 Version: 2.8.0
 Author URI: http://www.onelogin.com
+Network: true
 */
 
 // Make sure we don't expose any info if called directly
@@ -35,7 +36,8 @@ require_once plugin_dir_path(__FILE__)."php/configuration.php";
 add_action( 'init', 'saml_load_translations');
 
 // add menu option for configuration
-add_action('admin_menu', 'onelogin_saml_configuration');
+add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', 'onelogin_saml_configuration' );
+add_action('network_admin_edit_onelogin_saml_configuration', 'onelogin_saml_configuration_save');
 
 // Check if exists SAML Messages
 add_action('init', 'saml_checker', 1);
@@ -44,7 +46,7 @@ if (!is_saml_enabled()) {
 	return;
 }
 
-$prevent_reset_password = get_option('onelogin_saml_customize_action_prevent_reset_password', false);
+$prevent_reset_password = get_site_option('onelogin_saml_customize_action_prevent_reset_password', false);
 if ($prevent_reset_password) {
 	add_filter ('allow_password_reset', 'disable_password_reset' );
 	function disable_password_reset() { return false; }
@@ -57,7 +59,7 @@ if ($prevent_reset_password) {
 $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
 
 // Handle SLO
-if (isset($_COOKIE[SAML_LOGIN_COOKIE]) && get_option('onelogin_saml_slo')) {
+if (isset($_COOKIE[SAML_LOGIN_COOKIE]) && get_site_option('onelogin_saml_slo')) {
 	add_action('init', 'saml_slo', 1);
 }
 
@@ -80,12 +82,12 @@ if (isset($_GET['saml_sso'])) {
 		if ($wp_login_page) {
 			$execute_sso = True;
 		} else if (!$saml_actions && !isset($_GET['loggedout'])) {
-			if (get_option('onelogin_saml_forcelogin')) {
+			if (get_site_option('onelogin_saml_forcelogin')) {
 				add_action('init', 'saml_sso', 1);
 			}
 		}
 	} else if ($local_wp_actions) {
-		$prevent_local_login = get_option('onelogin_saml_customize_action_prevent_local_login', false);
+		$prevent_local_login = get_site_option('onelogin_saml_customize_action_prevent_local_login', false);
 
 		if (($want_to_local_login && $prevent_local_login) || ($want_to_reset && $prevent_reset_password)) {		
 			$execute_sso = True;
@@ -93,7 +95,7 @@ if (isset($_GET['saml_sso'])) {
 	}
 
 
-	$keep_local_login_form = get_option('onelogin_saml_keep_local_login', false);
+	$keep_local_login_form = get_site_option('onelogin_saml_keep_local_login', false);
 	if ($execute_sso && !$keep_local_login_form) {
 		add_action('init', 'saml_sso', 1);
 	} else {

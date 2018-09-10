@@ -39,12 +39,12 @@ try {
 	echo '<br>';
 }
 
-$forcelogin = get_option('onelogin_saml_forcelogin');
+$forcelogin = get_site_option('onelogin_saml_forcelogin');
 if ($forcelogin) {
 	echo '<br>'.__("Force SAML Login is enabled, that means that the user will be redirected to the IdP before getting access to Wordpress.", 'onelogin-saml-sso').'<br>';
 }
 
-$slo = get_option('onelogin_saml_slo');
+$slo = get_site_option('onelogin_saml_slo');
 if ($slo) {
 	echo '<br>'.__("Single Log Out is enabled. If the SLO process fail, close your browser to be sure that session of the apps are closed.", 'onelogin-saml-sso').'<br>';
 } else {
@@ -67,8 +67,8 @@ if (($spPrivatekey && !empty($spPrivatekey) && $fileSystemKeyExists) ||
 	echo '<br>'.__("Private key/certs stored on database have priority over the private key/cert stored at filesystem", 'onelogin-saml-sso').'<br>';
 }
 
-$autocreate = get_option('onelogin_saml_autocreate');
-$updateuser = get_option('onelogin_saml_updateuser');
+$autocreate = get_site_option('onelogin_saml_autocreate');
+$updateuser = get_site_option('onelogin_saml_updateuser');
 
 if ($autocreate) {
 	echo '<br>'.__("User will be created if not exists, based on the data sent by the IdP.", 'onelogin-saml-sso').'<br>';
@@ -92,11 +92,11 @@ $attr_mappings = array (
 	'onelogin_saml_attr_mapping_role' => __('Role', 'onelogin-saml-sso'),
 );
 
-$account_matcher = get_option('onelogin_saml_account_matcher', 'username');
+$account_matcher = get_site_option('onelogin_saml_account_matcher', 'username');
 
 $lacked_attr_mappings = array();
 foreach ($attr_mappings as $field => $name) {
-	$value = get_option($field);
+	$value = get_site_option($field);
 	if (empty($value)) {
 		if ($account_matcher == 'username' && $field == 'onelogin_saml_attr_mapping_username') {
 			echo '<br>'.__("Username mapping is required in order to enable the SAML Single Sign On", 'onelogin-saml-sso').'<br>';
@@ -116,11 +116,11 @@ if (!empty($lacked_attr_mappings)) {
 $lacked_role_mappings = array();
 $lacked_role_orders = array();
 foreach (wp_roles()->get_names() as $roleid => $name) {
-	$value = get_option('onelogin_saml_role_mapping_'.$roleid);
+	$value = get_site_option('onelogin_saml_role_mapping_'.$roleid);
 	if (empty($value)) {
 		$lacked_role_mappings[] = $name;
 	}
-	$value = get_option('onelogin_saml_role_order_'.$roleid);
+	$value = get_site_option('onelogin_saml_role_order_'.$roleid);
 	if (empty($value)) {
 		$lacked_role_orders[] = $name;
 	}
