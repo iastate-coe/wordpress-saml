@@ -164,7 +164,13 @@ function saml_acs() {
 	setcookie(SAML_SESSIONINDEX_COOKIE, $auth->getSessionIndex(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
 	setcookie(SAML_NAMEID_FORMAT_COOKIE, $auth->getNameIdFormat(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
 
-	$attrs = $auth->getAttributes();
+    /**
+     * Filters attributes from SAML Auth
+	 *
+	 * @param array $attributes 		Attributes from Saml2_Auth
+	 * @param Onelogin_Saml2_Auth $auth
+     */
+	$attrs = apply_filters('onelogin_saml_get_attributes',$auth->getAttributes(),$auth);
 
 	if (empty($attrs)) {
 		$nameid = $auth->getNameId();
