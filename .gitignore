@@ -1,1 +1,3 @@
-/onelogin-saml-sso/php/certs/
+/onelogin-saml-sso/php/certs/*
+!/onelogin-saml-sso/php/certs/.htaccess
+!/onelogin-saml-sso/php/certs/warning.txt
