@@ -286,9 +286,9 @@ function saml_acs() {
     	    	$blog_id = get_current_blog_id();
         		$result = add_user_to_blog($blog_id, $user_id, $userdata['role']);
         	} else {
-        		$user_id = null;
-				echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in this wordpress site and auto-provisioning is disabled.");
-				exit();
+        		//$user_id = null;
+				//echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in this wordpress site and auto-provisioning is disabled.");
+				//exit();
         	}
         }
 
