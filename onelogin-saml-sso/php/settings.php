@@ -57,7 +57,7 @@ if (empty($requested_authncontext_values)) {
     }
 }
 
-$acs_endpoint = get_site_option('onelogin_saml_alternative_acs', false) ? plugins_url( 'alternative_acs.php', dirname( __FILE__ ) ) : wp_login_url() . '?saml_acs';
+$acs_endpoint = get_site_option('onelogin_saml_alternative_acs', false) ? plugins_url( 'alternative_acs.php', dirname( __FILE__ ) ) : network_site_url('/wp-login.php?saml_acs');
 
 $settings = array (
 
@@ -67,7 +67,7 @@ $settings = array (
     'sp' => array (
         'entityId' => (!empty($opt['sp_entity_id'])? $opt['sp_entity_id'] : 'php-saml'),
         'assertionConsumerService' => array (
-            'url' => $acs_endpoint
+            'url' => network_site_url('/wp-login.php?saml_sls')
         ),
         'singleLogoutService' => array (
             'url' => get_site_url().'/wp-login.php?saml_sls'

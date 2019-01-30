@@ -453,6 +453,16 @@ function is_saml_enabled() {
 	return $saml_enabled;
 }
 
+function saml_network_filter_plugin_url($url, $path, $plugin){
+    if($path === 'alternative_acs.php'){
+        return str_replace(site_url('/'),network_site_url(),$url);
+    }
+    return $url;
+}
+if(is_multisite()) {
+    add_filter('plugins_url', 'saml_network_filter_plugin_url', 10, 3);
+}
+
 // Prevent that the user change important fields
 class preventLocalChanges
 {
