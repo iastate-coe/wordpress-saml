@@ -68,10 +68,10 @@ $settings = array (
     'sp' => array (
         'entityId' => (!empty($opt['sp_entity_id'])? $opt['sp_entity_id'] : 'php-saml'),
         'assertionConsumerService' => array (
-            'url' => network_site_url('/wp-login.php?saml_sls')
+            'url' => $acs_endpoint
         ),
         'singleLogoutService' => array (
-            'url' => get_site_url().'/wp-login.php?saml_sls'
+            'url' => $acs_endpoint
         ),
         'NameIDFormat' => $opt['NameIDFormat'],
         'x509cert' => get_site_option('onelogin_saml_advanced_settings_sp_x509cert'),
