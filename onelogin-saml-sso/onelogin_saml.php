@@ -36,8 +36,7 @@ require_once plugin_dir_path(__FILE__)."php/configuration.php";
 add_action( 'init', 'saml_load_translations');
 
 // add menu option for configuration
-add_action( is_multisite() ? 'network_admin_menu' : 'admin_menu', 'onelogin_saml_configuration' );
-add_action('network_admin_edit_onelogin_saml_configuration', 'onelogin_saml_configuration_save');
+add_action('admin_menu', 'onelogin_saml_configuration');
 
 // Check if exists SAML Messages
 add_action('init', 'saml_checker', 1);

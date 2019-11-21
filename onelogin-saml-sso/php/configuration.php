@@ -77,14 +77,14 @@ function onelogin_saml_configuration() {
 				$role_value = str_replace('onelogin_saml_role_order_', '', $name);
 				add_settings_field($name, $description, "plugin_setting_".$type."_onelogin_saml_role_order", $option_group, 'role_precedence', $role_value);
 			} else {
-				add_settings_field($name, $description, "plugin_setting_".$type."_$name", $option_group, $section);
+				add_settings_field($name, $description, "plugin_setting_".$type."_$name", $option_group, $section,true);
 			}
 		}
 	}
 }
 
-	function plugin_setting_boolean_onelogin_saml_enabled() {
-		$value = get_site_option('onelogin_saml_enabled');
+	function plugin_setting_boolean_onelogin_saml_enabled($network = false) {
+		$value = $network ? get_site_option('onelogin_saml_enabled') : get_option('onelogin_saml_enabled');
 		echo '<input type="checkbox" name="onelogin_saml_enabled" id="onelogin_saml_enabled"
 			  '.($value ? 'checked="checked"': '').'>'.
 			  '<p class="description">'.__("Check it in order to enable the SAML plugin.", 'onelogin-saml-sso').'</p>';
@@ -714,7 +714,11 @@ function onelogin_saml_configuration_multisite_save() {
 
 	foreach (array_keys($fields) as $section) {
 		foreach (array_keys($fields[$section]) as $name) {
-			update_site_option($name, $_POST[$name]);
+		    if(isset($_POST[$name])){
+                update_site_option($name, $_POST[$name]);
+            } else {
+                update_site_option($name, '');
+            }
 		}
 	}
 

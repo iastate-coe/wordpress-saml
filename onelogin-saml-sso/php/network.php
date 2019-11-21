@@ -26,9 +26,7 @@ $option_group = 'onelogin_saml_configuration_network';
 	wp_nonce_field('network_saml_settings_validate');
 
 	$sections = get_sections();
-	unset($sections['status']);
 	$fields = get_onelogin_saml_settings();
-	unset($fields['status']);
 	$special_fields = array(
 		'onelogin_saml_role_mapping_multivalued_in_one_attribute_value',
 		'onelogin_saml_role_mapping_multivalued_pattern'
