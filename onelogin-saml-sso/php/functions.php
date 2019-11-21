@@ -29,17 +29,12 @@ function saml_checker() {
 }
 
 function saml_custom_login_footer() {
-	$queryParams = array('saml_sso'=>'');
-	if (isset($_REQUEST['redirect_to'])){
-		$queryParams['redirect_to'] = urlencode(filter_input(INPUT_GET, 'redirect_to', FILTER_VALIDATE_URL));
-	}
-	$queryString = http_build_query($queryParams);
-	$saml_login_message = get_site_option('onelogin_saml_customize_links_saml_login');
+	$saml_login_message = get_option('onelogin_saml_customize_links_saml_login');
 	if (empty($saml_login_message)) {
 		$saml_login_message = "SAML Login";
 	}
 
-    echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( get_site_url(null,'/wp-login.php?'.$queryString) ).'">'.esc_html($saml_login_message).'</a></div>';
+    echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( get_site_url().'/wp-login.php?saml_sso') .'">'.esc_html($saml_login_message).'</a></div>';
 }
 
 function saml_load_translations() {

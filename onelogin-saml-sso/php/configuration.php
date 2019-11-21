@@ -27,7 +27,7 @@ function onelogin_saml_configuration_render() {
 			</div>
 			<div style="clear:both"></div>
 			<h2><?php echo esc_html( $title ); ?></h2>
-            <form action="<?php echo is_multisite() ? 'edit.php?action=onelogin_saml_configuration' : 'options.php'; ?>" method="post">
+			<form action="options.php" method="post">
 
 				<?php settings_fields('onelogin_saml_configuration'); ?>
 				<?php do_settings_sections('onelogin_saml_configuration'); ?>
@@ -41,60 +41,8 @@ function onelogin_saml_configuration_render() {
 	<?php
 }
 
-	function onelogin_saml_configuration_save(){
-		$checkboxes = array(
-			'onelogin_saml_enabled',
-            'onelogin_saml_autocreate',
-            'onelogin_saml_updateuser',
-            'onelogin_saml_forcelogin',
-            'onelogin_saml_slo',
-            'onelogin_saml_keep_local_login',
-            'onelogin_saml_alternative_acs',
-            'onelogin_saml_role_mapping_multivalued_in_one_attribute_value',
-            'onelogin_saml_customize_action_prevent_local_login',
-            'onelogin_saml_customize_action_prevent_reset_password',
-            'onelogin_saml_customize_action_prevent_change_password',
-            'onelogin_saml_customize_action_prevent_change_mail',
-            'onelogin_saml_customize_stay_in_wordpress_after_slo',
-            'onelogin_saml_advanced_settings_debug',
-            'onelogin_saml_advanced_settings_strict_mode',
-            'onelogin_saml_advanced_settings_nameid_encrypted',
-            'onelogin_saml_advanced_settings_authn_request_signed',
-            'onelogin_saml_advanced_settings_logout_request_signed',
-            'onelogin_saml_advanced_settings_logout_response_signed',
-            'onelogin_saml_advanced_settings_want_message_signed',
-            'onelogin_saml_advanced_settings_want_assertion_signed',
-            'onelogin_saml_advanced_settings_want_assertion_encrypted',
-            'onelogin_saml_advanced_settings_retrieve_parameters_from_server',
-		);
-		foreach ($_POST as $key=>$value){
-			if (strpos($key,'onelogin_saml_') !== false ){
-				if ( ($foundKey = array_search($key,$checkboxes)) !== false ){
-					unset($checkboxes[$foundKey]);
-				}
-				update_site_option($key,$value);
-			}
-		}
-		if (count($checkboxes) > 0 ){
-			foreach ($checkboxes as $value){
-                update_site_option($value,'');
-            }
-		}
-        wp_redirect(
-            add_query_arg(
-                array( 'page' => 'onelogin_saml_configuration', 'updated' => 'true' ),
-                (is_multisite() ? network_admin_url( 'admin.php' ) : admin_url( 'admin.php' ))
-            )
-        );
-        exit;
-	}
-
-	function onelogin_saml_configuration() {
-		if(is_multisite()){
-            $current_screen = add_submenu_page( 'settings.php', 'SSO/SAML Settings', 'SSO/SAML Settings', 'manage_network_options', 'onelogin_saml_configuration', 'onelogin_saml_configuration_render');
-        } else {
-            $current_screen = add_submenu_page( 'options-general.php', 'SSO/SAML Settings', 'SSO/SAML Settings', 'manage_options', 'onelogin_saml_configuration', 'onelogin_saml_configuration_render');
-		}
+function onelogin_saml_configuration() {
+	$current_screen = add_submenu_page( 'options-general.php', 'SSO/SAML Settings', 'SSO/SAML Settings', 'manage_options', 'onelogin_saml_configuration', 'onelogin_saml_configuration_render');
 
 	$helpText = '<p>' . __('This plugin provides single sign-on via SAML and gives users one-click access to their WordPress accounts from identity providers like OneLogin', 'onelogin-saml-sso') . '</p>' .
 		'<p><strong>' . __('For more information', 'onelogin-saml-sso') . '</strong> '.__("access to the", 'onelogin-saml-sso').' <a href="https://onelogin.zendesk.com/hc/en-us/articles/201173454-Configuring-SAML-for-WordPress" target="_blank">'.__("Plugin Info", 'onelogin-saml-sso').'</a> ' .
