@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__, 3) . '/wp-load.php';
+require_once dirname(__FILE__, 4) . '/wp-load.php';
 #require_once dirname(__FILE__,4) . '/public/wp-load.php';
 require_once plugin_dir_path(__FILE__)."onelogin-saml-sso/php/functions.php";
 require_once plugin_dir_path(__FILE__)."onelogin-saml-sso/php/configuration.php";

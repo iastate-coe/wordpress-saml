@@ -333,8 +333,8 @@ function saml_acs() {
 	}
 
 	do_action( 'onelogin_saml_attrs', $attrs, wp_get_current_user(), get_current_user_id() );
-	
-	if (isset($_REQUEST['RelayState'])) {
+
+	if (isset($_REQUEST['RelayState']) && $_REQUEST['RelayState'] !== '') {
 		if (!empty($_REQUEST['RelayState']) && ((substr($_REQUEST['RelayState'], -strlen('/wp-login.php')) === '/wp-login.php') || (substr($_REQUEST['RelayState'], -strlen('/alternative_acs.php')) === '/alternative_acs.php'))) {
 			wp_redirect(home_url());
 		} else {
