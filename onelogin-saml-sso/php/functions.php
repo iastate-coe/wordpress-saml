@@ -349,6 +349,7 @@ function saml_acs() {
 	} else {
 		wp_redirect(home_url());
 	}
+    wp_redirect(home_url());
 	exit();
 }
 
