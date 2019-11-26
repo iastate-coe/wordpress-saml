@@ -29,7 +29,7 @@ function saml_checker() {
 }
 
 function saml_custom_login_footer() {
-	$saml_login_message = get_option('onelogin_saml_customize_links_saml_login');
+	$saml_login_message = get_site_option('onelogin_saml_customize_links_saml_login');
 	if (empty($saml_login_message)) {
 		$saml_login_message = "SAML Login";
 	}

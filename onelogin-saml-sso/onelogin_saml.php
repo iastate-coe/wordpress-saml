@@ -118,7 +118,7 @@ function onelogin_enqueue_script() {
 }
 
 if ((strpos($_SERVER['SCRIPT_NAME'], 'wp-login.php') !== FALSE) && $action == 'login' && !isset($_GET['normal'])) {
-	if (!get_option('onelogin_saml_keep_local_login', false)) {
+	if (!get_site_option('onelogin_saml_keep_local_login', false)) {
 		add_action( 'login_enqueue_scripts', 'onelogin_enqueue_script', 10 );
 	}
 }
