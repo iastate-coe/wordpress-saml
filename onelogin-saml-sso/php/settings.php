@@ -58,7 +58,7 @@ if (empty($requested_authncontext_values)) {
     }
 }
 
-$acs_endpoint = get_site_option('onelogin_saml_alternative_acs', false) ? plugins_url( 'alternative_acs.php', dirname( __FILE__ ) ) : network_site_url('/wp-login.php?saml_acs');
+$acs_endpoint = get_site_option('onelogin_saml_alternative_acs', false) ? plugins_url( 'alternative_acs.php', dirname( __FILE__, 2 ) ) : network_site_url('/wp-login.php?saml_acs');
 
 $settings = array (
 
