@@ -62,10 +62,10 @@ function saml_user_register() {
 }
 
 function saml_sso() {
-	if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	if ((defined('WP_CLI') && WP_CLI) || wp_doing_cron() || wp_doing_ajax()) {
 		return true;
 	}
-
+	
 	if (is_user_logged_in()) {
 		return true;
 	}
@@ -205,7 +205,7 @@ function saml_acs() {
 	}
 	else if (empty($email)) {
 		echo __("The email could not be retrieved from the IdP and is required");
-		exit();	
+		exit();
 	} else {
 		$userdata = array();
 		$userdata['user_login'] = wp_slash($username);
@@ -233,7 +233,7 @@ function saml_acs() {
 				if (!empty($pattern)) {
 					preg_match_all($pattern, $attrs[$roleMapping][0], $roleValues);
 					if (!empty($roleValues)) {
-    					$attrs[$roleMapping] = $roleValues[1];
+						$attrs[$roleMapping] = $roleValues[1];
 					}
 				} else {
 					$roleValues = explode(';', $attrs[$roleMapping][0]);
@@ -278,17 +278,21 @@ function saml_acs() {
 	}
 
 	if ($user_id) {
-		if (is_multisite() && !is_user_member_of_blog($user_id)) {
-    	    if (get_site_option('onelogin_saml_autocreate')) {
-    	    	//Exist's but is not user to the current blog id
-    	    	$blog_id = get_current_blog_id();
-        		$result = add_user_to_blog($blog_id, $user_id, $userdata['role']);
-        	} else {
-        		//$user_id = null;
-				//echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in this wordpress site and auto-provisioning is disabled.");
-				//exit();
-        	}
-        }
+		if (is_multisite()) {
+			if (get_site_option('onelogin_network_saml_global_jit')) {
+				enroll_user_on_sites($user_id, $userdata['role']);
+			} else if (!is_user_member_of_blog($user_id)) {
+				if (get_site_option('onelogin_saml_autocreate')) {
+					//Exist's but is not user to the current blog id
+					$blog_id = get_current_blog_id();
+					$result = add_user_to_blog($blog_id, $user_id, $userdata['role']);
+				} else {
+					//$user_id = null;
+					//echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in this wordpress site and auto-provisioning is disabled.");
+					//exit();
+				}
+			}
+		}
 
 		if (get_site_option('onelogin_saml_updateuser')) {
 			$userdata['ID'] = $user_id;
@@ -306,8 +310,21 @@ function saml_acs() {
 			echo __("The username provided by the IdP"). ' "'. esc_attr($username). '" '. __("is not valid and can't create the user at wordpress");
 			exit();
 		}
+
+		if (!isset($userdata['role'])) {
+			$userdata['role'] = get_option('default_role');
+		}
+
 		$userdata['user_pass'] = wp_generate_password();
 		$user_id = wp_insert_user($userdata);
+		if ($user_id && !is_a($user_id, 'WP_Error') && is_multisite()) {
+			if (get_site_option('onelogin_network_saml_global_jit')) {
+				enroll_user_on_sites($user_id, $userdata['role']);
+			} else {
+				$blog_id = get_current_blog_id();
+				$result = add_user_to_blog($blog_id, $user_id, $userdata['role']);
+			}
+		}
 	} else {
 		echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in wordpress and auto-provisioning is disabled.");
 		exit();
@@ -325,7 +342,7 @@ function saml_acs() {
 		$rememberme = false;
 		$remembermeMapping = get_site_option('onelogin_saml_attr_mapping_rememberme');
 		if (!empty($remembermeMapping) && isset($attrs[$remembermeMapping]) && !empty($attrs[$remembermeMapping][0])) {
-    			$rememberme = in_array($attrs[$remembermeMapping][0], array(1, true, '1', 'yes', 'on')) ? true : false;
+			$rememberme = in_array($attrs[$remembermeMapping][0], array(1, true, '1', 'yes', 'on')) ? true : false;
 		}
 		wp_set_auth_cookie($user_id, $rememberme);
 
@@ -459,6 +476,15 @@ function saml_network_filter_plugin_url($url, $path, $plugin){
 }
 if(is_multisite()) {
     add_filter('plugins_url', 'saml_network_filter_plugin_url', 10, 3);
+}
+
+function enroll_user_on_sites($user_id, $role) {
+	$sites = get_sites();
+	foreach ($sites as $site) {
+		if (get_blog_option($site_id, "onelogin_saml_autocreate") && !is_user_member_of_blog($user_id, $site->id)) {
+			$result = add_user_to_blog($site->id, $user_id, $role);
+		}
+	}
 }
 
 // Prevent that the user change important fields
