@@ -13,6 +13,10 @@ use OneLogin\Saml2\Constants;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 
+function sanitize_array_int($integers) {
+	$sanitized_array = array_map( 'intval', $integers );
+	return $sanitized_array;
+}
 
 function onelogin_saml_configuration_render() {
 	$title = __("SSO/SAML Settings", 'onelogin-saml-sso');
@@ -83,12 +87,12 @@ function onelogin_saml_configuration() {
 	}
 }
 
-	function plugin_setting_boolean_onelogin_saml_enabled($network = false) {
-		$value = $network ? get_site_option('onelogin_saml_enabled') : get_option('onelogin_saml_enabled');
-		echo '<input type="checkbox" name="onelogin_saml_enabled" id="onelogin_saml_enabled"
-			  '.($value ? 'checked="checked"': '').'>'.
-			  '<p class="description">'.__("Check it in order to enable the SAML plugin.", 'onelogin-saml-sso').'</p>';
-	}
+function plugin_setting_boolean_onelogin_saml_enabled($network = false) {
+	$value = $network ? get_site_option('onelogin_saml_enabled') : get_option('onelogin_saml_enabled');
+	echo '<input type="checkbox" name="onelogin_saml_enabled" id="onelogin_saml_enabled"
+		  '.($value ? 'checked="checked"': '').'>'.
+		  '<p class="description">'.__("Check it in order to enable the SAML plugin.", 'onelogin-saml-sso').'</p>';
+}
 
 function plugin_setting_string_onelogin_saml_idp_entityid($network = false) {
 	echo '<input type="text" name="onelogin_saml_idp_entityid" id="onelogin_saml_idp_entityid"
@@ -167,11 +171,25 @@ function plugin_setting_select_onelogin_saml_account_matcher($network = false) {
 		'<p class="description">'.__('Select what field will be used in order to find the user account. If "email", the plugin will prevent the user from changing their email address in their user profile.', 'onelogin-saml-sso').'</p>';
 }
 
+function plugin_setting_boolean_onelogin_saml_multirole($network = false) {
+    $value = $network ? get_site_option('onelogin_saml_multirole') : get_option('onelogin_saml_multirole');
+    echo '<input type="checkbox" name="onelogin_saml_multirole" id="onelogin_saml_multirole"
+          '.($value ? 'checked="checked"': '').'>'.
+          '<p class="description">'.__('Enable/disable the support of multiple roles. Not available in multi-site wordpress', 'onelogin-saml-sso').'</p>';
+}
+
 function plugin_setting_boolean_onelogin_saml_alternative_acs($network = false) {
 	$value = $network ? get_site_option('onelogin_saml_alternative_acs') : get_option('onelogin_saml_alternative_acs');
 	echo '<input type="checkbox" name="onelogin_saml_alternative_acs" id="onelogin_saml_alternative_acs"
 		  '.($value ? 'checked="checked"': '').'>'.
 		  '<p class="description">'.__('Enable if you want to use a different Assertion Consumer Endpoint than <code>/wp-login.php?saml_acs</code> (Required if using WPEngine or any similar hosting service that prevents POST on <code>wp-login.php</code>). You must update the IdP with the new value after enabling/disabling this setting.', 'onelogin-saml-sso').'</p>';
+}
+
+function plugin_setting_textarea_onelogin_saml_trusted_url_domains($network = false) {
+	echo '<textarea name="onelogin_saml_trusted_url_domains" id="onelogin_saml_trusted_url_domains" style="width:600px; height:220px; font-size:12px; font-family:courier,arial,sans-serif;">';
+	echo esc_textarea($network ? get_site_option('onelogin_saml_trusted_url_domains') : get_option('onelogin_saml_trusted_url_domains'));
+	echo '</textarea>';
+	echo '<p class="description">'.__("List here any domain (comma- separated) that you want to be trusted in the RelayState parameter, otherwise the parameter will be ignored. You don't need to include the domain of the wordpress instance", 'onelogin-saml-sso');
 }
 
 function plugin_setting_string_onelogin_saml_attr_mapping_username($network = false) {
@@ -389,7 +407,7 @@ function plugin_setting_boolean_onelogin_saml_advanced_settings_retrieve_paramet
 }
 
 function plugin_setting_select_onelogin_saml_advanced_nameidformat($network = false) {
-	$value = $network ? get_site_option('onelogin_saml_advanced_nameidformat') : get_option('onelogin_saml_advanced_nameidformat');
+	$nameidformat_value = $network ? get_site_option('onelogin_saml_advanced_nameidformat') : get_option('onelogin_saml_advanced_nameidformat');
 	$posible_nameidformat_values = array(
 		'unspecified' => Constants::NAMEID_UNSPECIFIED,
 		'emailAddress' => Constants::NAMEID_EMAIL_ADDRESS,
@@ -503,7 +521,7 @@ function plugin_section_role_mapping_text() {
 }
 
 function plugin_section_role_precedence_text() {
-	echo "<p>".__("In some cases, the IdP returns more than one role. In this secion, you can set the precedence of the different roles. The smallest integer will be the role chosen.", 'onelogin-saml-sso')."</p>";
+	echo "<p>".__("In some cases, the IdP returns more than one role. In this secion, you can set the precedence of the different roles which makes sense if multi-role support is not enabled. The smallest integer will be the role chosen.", 'onelogin-saml-sso')."</p>";
 }
 
 function plugin_section_customize_links_text() {
@@ -545,7 +563,7 @@ function onelogin_saml_global_configuration_multisite_save() {
 	check_admin_referer('network_saml_global_settings_validate'); // Nonce security check
 
 	if (isset($_POST)) {
-		if (isset($_POST['global_jit']) && $_POST['global_jit'] = 'on') {
+		if (isset($_POST['global_jit']) && $_POST['global_jit'] === 'on') {
 			$global_jit = true;
 		} else {
 			$global_jit = false;
@@ -568,11 +586,7 @@ function onelogin_saml_configuration_multisite_save() {
 
 	foreach (array_keys($fields) as $section) {
 		foreach (array_keys($fields[$section]) as $name) {
-		    if(isset($_POST[$name])){
-                update_site_option($name, $_POST[$name]);
-            } else {
-                update_site_option($name, '');
-            }
+			update_site_option($name, wp_unslash($_POST[$name]));
 		}
 	}
 
@@ -588,9 +602,11 @@ function onelogin_saml_configuration_multisite_injection() {
 	$updated = false;
 	if (!empty($_POST) && isset($_POST['inject_saml_in_site'])) {
 		$fields = get_onelogin_saml_settings();
-		foreach ($_POST['inject_saml_in_site'] as $site_id) {
+		$sites = sanitize_array_int($_POST['inject_saml_in_site']);
+		foreach ($sites as $site_id) {
 			foreach (array_keys($fields) as $section) {
 				foreach (array_keys($fields[$section]) as $name) {
+					$name = sanitize_key($name);
 					update_blog_option($site_id, $name, get_site_option($name, ''));
 				}
 			}
@@ -611,10 +627,11 @@ function onelogin_saml_configuration_multisite_enabler() {
 	if (!empty($_POST)) {
 		$enable_on_sites = array();
 		if (isset($_POST['enable_saml_in_site'])) {
-			$enable_on_sites = $_POST['enable_saml_in_site'];
+			$enable_on_sites = sanitize_array_int($_POST['enable_saml_in_site']);
 		}
 
-		$sites = get_sites();
+		$opts = array('number' => 1000);
+        $sites = get_sites($opts);
 		foreach ($sites as $site) {
 			$value = false;
 			if (in_array($site->id, $enable_on_sites)) {
@@ -726,6 +743,14 @@ function get_onelogin_saml_settings_options() {
 		'onelogin_saml_account_matcher' => array(
 			__('Match Wordpress account by', 'onelogin-saml-sso'),
 			'select'
+		),
+		'onelogin_saml_multirole' => array(
+			__('Multi Role Support', 'onelogin-saml-sso'),
+			'boolean'
+		),
+		'onelogin_saml_trusted_url_domains' => array(
+			__('Trust URL domains on RelayState', 'onelogin-saml-sso'),
+			'textarea'
 		)
 	);
 }
