@@ -431,10 +431,14 @@ function saml_acs() {
 		}
 	} else {
 		echo __("User provided by the IdP "). ' "'. esc_attr($matcherValue). '" '. __("does not exist in wordpress and auto-provisioning is disabled.");
-        setcookie(SAML_LOGIN_COOKIE, 1, time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
-        setcookie(SAML_NAMEID_COOKIE, $auth->getNameId(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
-        setcookie(SAML_SESSIONINDEX_COOKIE, $auth->getSessionIndex(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
-        setcookie(SAML_NAMEID_FORMAT_COOKIE, $auth->getNameIdFormat(), time() + YEAR_IN_SECONDS, SITECOOKIEPATH );
+        /**
+         * Handle user not found
+         *
+         * @param OneLogin\Saml2\Auth $auth
+         *
+         * @since 3.2.1
+         */
+        do_action('onelogin_saml_user_not_found', $auth);
 	}
 
 	if (is_a($user_id, 'WP_Error')) {
