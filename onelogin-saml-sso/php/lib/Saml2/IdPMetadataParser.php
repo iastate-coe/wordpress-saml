@@ -46,6 +46,7 @@ class IdPMetadataParser
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_FAILONERROR, 1);
 
             $xml = curl_exec($ch);
@@ -55,6 +56,7 @@ class IdPMetadataParser
                 throw new Exception(curl_error($ch), curl_errno($ch));
             }
         } catch (Exception $e) {
+            throw new Exception('Error on parseRemoteXML. '.$e->getMessage());
         }
         return $metadataInfo;
     }
@@ -83,6 +85,7 @@ class IdPMetadataParser
                 $metadataInfo = self::parseXML($data, $entityId, $desiredNameIdFormat, $desiredSSOBinding, $desiredSLOBinding);
             }
         } catch (Exception $e) {
+            throw new Exception('Error on parseFileXML. '.$e->getMessage());
         }
         return $metadataInfo;
     }
@@ -157,6 +160,10 @@ class IdPMetadataParser
                         'url' => $sloNodes->item(0)->getAttribute('Location'),
                         'binding' => $sloNodes->item(0)->getAttribute('Binding')
                     );
+
+                    if ($sloNodes->item(0)->hasAttribute('ResponseLocation')) {
+                        $metadataInfo['idp']['singleLogoutService']['responseUrl'] = $sloNodes->item(0)->getAttribute('ResponseLocation');
+                    }
                 }
 
                 $keyDescriptorCertSigningNodes = Utils::query($dom, './md:KeyDescriptor[not(contains(@use, "encryption"))]/ds:KeyInfo/ds:X509Data/ds:X509Certificate', $idpDescriptor);

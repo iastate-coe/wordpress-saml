@@ -2,7 +2,7 @@
 Contributors: onelogin
 Tags: sso, saml, single sign on, password, active directory, ldap, identity, onelogin, yubico, yubikey, vip access, otp
 Requires at least: 2.1.2
-Tested up to: 5.0.3
+Tested up to: 5.3.2
 Stable tag: trunk
 
 This plugin provides single sign-on via SAML and gives users one-click access to their WordPress accounts from identity providers like OneLogin.
@@ -21,6 +21,34 @@ If you used this plugin before 2.2.0 with just-in-time provision active, Read: h
 To mitigate that bug, place the script at the root of wordpress and execute it (later remove it) https://gist.github.com/pitbulk/a8223c90a3534e9a7d5e0a93009a094f
 
 == Changelog ==
+
+= 3.2.1 =
+* Sanitize inputs
+* Update php-saml to 3.4.1
+* Fix nameidformat field
+
+= 3.2.0 =
+* Avoid untrusted redirections
+* Disable SAML on CLI/Cron on ACS and SLS endpoints. Allow custom filter to disable SAML
+* Support multi-role
+* Fix variable assignment during conditional check
+* Swap to `manage_options` for the cap check on the validate page.
+* Fix unintentional variable assignment
+* Set 1000 as the limit of sites to be managed by SAML network settings
+
+= 3.1.2 =
+* Minor fix to extract all sites for the multi-site features
+
+= 3.1.1 =
+* Multisites: Add the option to automatically enroll users on sites when a SAML Network setting enabled
+* Fix #86. Set default role when not provided only on create action
+* Detect Ajax and cron tasks
+
+= 3.1.0 =
+* Multisite improvement. Now when multisite is enabled, on the "Network Admin" dashboard appears a "Network SAML Settings" where you can define a SAML template setting, and then inject it in sites. Also will allow you enable/disable multiple sites on a unique view.
+* Now the onelogin_saml_keep_local_login will also hide the login form on wp-login.php view. So when on a logout action, we can notify the user with the typical message of 'You are now logged out.' without showing the local login form.
+* Update php-saml to 3.3.1
+* Update xmlseclibs to 3.0.4
 
 = 3.0.0 =
 * Update php-saml to 3.1.0 to make the plugin compatible with PHP7.3
