@@ -586,7 +586,11 @@ function onelogin_saml_configuration_multisite_save() {
 
 	foreach (array_keys($fields) as $section) {
 		foreach (array_keys($fields[$section]) as $name) {
-			update_site_option($name, wp_unslash($_POST[$name]));
+            if(isset($_POST[$name])){
+                update_site_option($name, wp_unslash($_POST[$name]));
+            } else {
+                update_site_option($name, '');
+            }
 		}
 	}
 
