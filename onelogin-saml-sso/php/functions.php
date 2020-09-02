@@ -105,8 +105,11 @@ function saml_custom_login_footer() {
 	if (empty($saml_login_message)) {
 		$saml_login_message = "SAML Login";
 	}
+	$redirect_to  = filter_input(INPUT_GET, 'redirect_to', FILTER_SANITIZE_URL);
+    $force_reauth = filter_input(INPUT_GET, 'reauth', FILTER_VALIDATE_BOOLEAN);
+	$login_url    = add_query_arg('saml_sso', '', wp_login_url($redirect_to, $force_reauth));
 
-	echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( get_site_url().'/wp-login.php?saml_sso') .'">'.esc_html($saml_login_message).'</a></div>';
+	echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( $login_url ) .'">'.esc_html($saml_login_message).'</a></div>';
 }
 
 function saml_load_translations() {
