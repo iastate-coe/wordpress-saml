@@ -147,7 +147,10 @@ function saml_sso() {
 		wp_redirect(home_url());
 		exit();
 	}
-	if (isset($_SERVER['REQUEST_URI']) && !isset($_GET['saml_sso'])) {
+
+	if (isset($_GET["target"])) {
+		$auth->login($_GET["target"]);
+	} else if (isset($_SERVER['REQUEST_URI']) && !isset($_GET['saml_sso'])) {
 		$auth->login($_SERVER['REQUEST_URI']);
 	} elseif(isset($_REQUEST['redirect_to'])) {
         $auth->login(urldecode(filter_input(INPUT_GET,'redirect_to',FILTER_SANITIZE_URL)));
@@ -246,6 +249,25 @@ function saml_acs() {
 
 	$errors = $auth->getErrors();
 	if (!empty($errors)) {
+		// Don't raise an error on passive mode
+		$errorReason = $auth->getLastErrorReason();
+		if (strpos($errorReason, 'Responder') != false && strpos($errorReason, 'Passive') !== false ) {
+			$relayState = esc_url_raw( $_REQUEST['RelayState'], ['https','http']);
+
+			if (empty($relayState)) {
+				wp_redirect(home_url());
+			} else {
+				if (strpos($relayState, 'redirect_to') !== false) {
+					$query = wp_parse_url($relayState, PHP_URL_QUERY);
+					parse_str($query, $parameters);
+					redirect_to_relaystate_if_trusted(urldecode($parameters['redirect_to']));
+				}  else {
+					redirect_to_relaystate_if_trusted($relayState);
+				}
+			}
+			exit();
+		}
+
 		echo '<br>'.__("There was at least one error processing the SAML Response").': ';
 		foreach($errors as $error) {
 			echo esc_html($error).'<br>';
@@ -365,6 +387,7 @@ function saml_acs() {
 	}
 
 	$matcher = get_site_option('onelogin_saml_account_matcher');
+	$newuser = false;
 
 	if (empty($matcher) || $matcher == 'username') {
 		$matcherValue = $userdata['user_login'];
@@ -412,6 +435,7 @@ function saml_acs() {
 			}
 		}
 	} else if (get_site_option('onelogin_saml_autocreate')) {
+		$newuser = true;
 		if (!validate_username($username)) {
 			echo __("The username provided by the IdP"). ' "'. esc_attr($username). '" '. __("is not valid and can't create the user at wordpress");
 			exit();
@@ -475,7 +499,7 @@ function saml_acs() {
 		setcookie(SAML_NAMEID_SP_NAME_QUALIFIER_COOKIE, $auth->getNameIdSPNameQualifier(), time() + MONTH_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN, $secure, true);
 	}
 
-	do_action( 'onelogin_saml_attrs', $attrs, wp_get_current_user(), get_current_user_id() );
+	do_action( 'onelogin_saml_attrs', $attrs, wp_get_current_user(), get_current_user_id(), $newuser);
 
 	// Trigger the wp_login hook used by wp_signon()
 	// @see https://developer.wordpress.org/reference/hooks/wp_login/
