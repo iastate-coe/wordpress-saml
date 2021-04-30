@@ -3,13 +3,7 @@
  * Alternative login endpoint.
  */
 
-$down_directory = dirname( __FILE__, 4 );
-if ( file_exists( $down_directory . '/wp-load.php' ) ) {
-	require_once $down_directory . '/wp-load.php';
-} else {
-	// specific dev instance.
-	require_once $down_directory . '/public/wp-load.php';
-}
+require_once dirname( __FILE__, 4 ) . '/wp-load.php';
 require_once plugin_dir_path( __FILE__ ) . 'onelogin-saml-sso/php/functions.php';
 require_once plugin_dir_path( __FILE__ ) . 'onelogin-saml-sso/php/configuration.php';
 
