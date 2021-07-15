@@ -30,7 +30,9 @@ $is_active           = in_array( $okta_privacy_plugin, (array) get_option( 'acti
 
 if ( $is_active ) {
 	include_once plugin_dir_path( dirname( __FILE__ ) ) . $okta_privacy_plugin;
-	run_wordpress_saml_private_blog();
+	if ( function_exists( 'run_wordpress_saml_private_blog' ) ) {
+		run_wordpress_saml_private_blog();
+	}
 }
 
 $okta_privacy_plugin = 'okta-privacy/okta-privacy.php';
@@ -38,7 +40,9 @@ $is_active           = in_array( $okta_privacy_plugin, (array) get_option( 'acti
 
 if ( $is_active ) {
 	include_once plugin_dir_path( dirname( __FILE__ ) ) . $okta_privacy_plugin;
-	new OktaPrivateISU();
+	if ( class_exists( 'OktaPrivateISU' ) ) {
+		new OktaPrivateISU();
+	}
 }
 /*
  * ------------------------------------------------------------------------------------------------------
