@@ -107,7 +107,12 @@ function saml_custom_login_footer() {
     $force_reauth = filter_input(INPUT_GET, 'reauth', FILTER_VALIDATE_BOOLEAN);
 	$login_url    = add_query_arg('saml_sso', '', wp_login_url($redirect_to, $force_reauth));
 
-	echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( $login_url ) .'">'.esc_html($saml_login_message).'</a></div>';
+	$login_page = 'wp-login.php';
+	if (is_plugin_active('wps-hide-login/wps-hide-login.php')) {
+		$login_page = str_replace( 'wp-login.php', get_site_option( 'whl_page', 'login' ), $login_page ) . '/';
+	}
+
+	echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( get_site_url().'/'.$login_page.'?saml_sso') .'">'.esc_html($saml_login_message).'</a></div>';
 }
 
 function saml_load_translations() {
