@@ -13,7 +13,5 @@ if (!function_exists('wp_roles'))
 }
 
 if ( ! function_exists( 'is_plugin_active' ) ) {
-	function is_plugin_active( $plugin ) {
-		return in_array( $plugin, (array) get_option( 'active_plugins', array() ) );
-	}
+	require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 }
