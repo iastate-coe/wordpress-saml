@@ -26,9 +26,7 @@ if ( $blog instanceof WP_Site ) {
  * @todo Find a better way to load plugins using alternate access point
  */
 $okta_privacy_plugin = 'wordpress-saml-private-blog/wordpress-saml-private-blog.php';
-$is_active           = in_array( $okta_privacy_plugin, (array) get_option( 'active_plugins', array() ), true );
-
-if ( $is_active ) {
+if ( is_plugin_active( $okta_privacy_plugin) ) {
 	include_once plugin_dir_path( dirname( __FILE__ ) ) . $okta_privacy_plugin;
 	if ( function_exists( 'run_wordpress_saml_private_blog' ) ) {
 		run_wordpress_saml_private_blog();
@@ -36,9 +34,7 @@ if ( $is_active ) {
 }
 
 $okta_privacy_plugin = 'okta-privacy/okta-privacy.php';
-$is_active           = in_array( $okta_privacy_plugin, (array) get_option( 'active_plugins', array() ), true );
-
-if ( $is_active ) {
+if ( is_plugin_active( $okta_privacy_plugin)) {
 	include_once plugin_dir_path( dirname( __FILE__ ) ) . $okta_privacy_plugin;
 	if ( class_exists( 'OktaPrivateISU' ) ) {
 		new OktaPrivateISU();
