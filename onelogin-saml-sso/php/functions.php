@@ -103,15 +103,15 @@ function saml_custom_login_footer() {
 	if (empty($saml_login_message)) {
 		$saml_login_message = "SAML Login";
 	}
-	$redirect_to  = filter_input(INPUT_GET, 'redirect_to', FILTER_SANITIZE_URL);
-    $force_reauth = filter_input(INPUT_GET, 'reauth', FILTER_VALIDATE_BOOLEAN);
-	$login_url    = add_query_arg('saml_sso', '', wp_login_url($redirect_to, $force_reauth));
 
 	$login_page = 'wp-login.php';
 	if (is_plugin_active('wps-hide-login/wps-hide-login.php')) {
 		$login_page = str_replace( 'wp-login.php', get_site_option( 'whl_page', 'login' ), $login_page ) . '/';
 	}
 
+	$redirect_to  = filter_input(INPUT_GET, 'redirect_to', FILTER_SANITIZE_URL);
+	$force_reauth = filter_input(INPUT_GET, 'reauth', FILTER_VALIDATE_BOOLEAN);
+	$login_url    = add_query_arg('saml_sso', '', wp_login_url($redirect_to, $force_reauth));
 	echo '<div style="font-size: 110%;padding:8px;background: #fff;text-align: center;"><a href="'.esc_url( get_site_url().'/'.$login_page.'?saml_sso') .'">'.esc_html($saml_login_message).'</a></div>';
 }
 
@@ -155,11 +155,11 @@ function saml_sso() {
 
 	if (isset($_GET["target"])) {
 		$auth->login($_GET["target"]);
+	} else if (isset($_GET['redirect_to'])) {
+		$auth->login(urldecode(filter_input(INPUT_GET,'redirect_to',FILTER_SANITIZE_URL)));
 	} else if (isset($_SERVER['REQUEST_URI']) && !isset($_GET['saml_sso'])) {
 		$auth->login($_SERVER['REQUEST_URI']);
-	} elseif(isset($_REQUEST['redirect_to'])) {
-        $auth->login(urldecode(filter_input(INPUT_GET,'redirect_to',FILTER_SANITIZE_URL)));
-    } else {
+	} else {
 		$auth->login();
 	}
 	exit();
