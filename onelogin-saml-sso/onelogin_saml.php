@@ -4,7 +4,7 @@ Plugin Name: OneLogin SAML SSO
 Plugin URI: https://github.com/onelogin/wordpress-saml
 Description: Give users secure one-click access to WordPress from OneLogin. This SAML integration eliminates passwords and allows you to authenticate users against your existing Active Directory or LDAP server as well increase security using YubiKeys or VeriSign VIP Access, browser PKI certificates and OneLogin's flexible security policies. OneLogin is pre-integrated with thousands of apps and handles all of your SSO needs in the cloud and behind the firewall.
 Author: OneLogin, Inc.
-Version: 3.2.1
+Version: 3.4.0
 Author URI: http://www.onelogin.com
 Network: true
 */
@@ -16,17 +16,23 @@ if ( !function_exists( 'add_action' ) ) {
 }
 
 // Allow cookie name overriding by defining following constants prior this point. Eg.: in wp-config.php.
-if ( false === defined( 'SAML_LOGIN_COOKIE' ) ) {
-	define( 'SAML_LOGIN_COOKIE', 'saml_login' );
+if (false === defined('SAML_LOGIN_COOKIE' )) {
+	define( 'SAML_LOGIN_COOKIE', 'saml_login');
 }
-if ( false === defined( 'SAML_NAMEID_COOKIE' ) ) {
-	define( 'SAML_NAMEID_COOKIE', 'saml_nameid' );
+if (false === defined('SAML_NAMEID_COOKIE')) {
+	define( 'SAML_NAMEID_COOKIE', 'saml_nameid');
 }
-if ( false === defined( 'SAML_SESSIONINDEX_COOKIE' ) ) {
-	define( 'SAML_SESSIONINDEX_COOKIE', 'saml_sessionindex' );
+if (false === defined('SAML_SESSIONINDEX_COOKIE')) {
+	define( 'SAML_SESSIONINDEX_COOKIE', 'saml_sessionindex');
 }
-if ( false === defined( 'SAML_NAMEID_FORMAT_COOKIE' ) ) {
-	define( 'SAML_NAMEID_FORMAT_COOKIE', 'saml_nameid_format' );
+if (false === defined('SAML_NAMEID_FORMAT_COOKIE')) {
+	define( 'SAML_NAMEID_FORMAT_COOKIE', 'saml_nameid_format');
+}
+if (false === defined('SAML_NAMEID_NAME_QUALIFIER_COOKIE')) {
+	define( 'SAML_NAMEID_NAME_QUALIFIER_COOKIE', 'saml_nameid_name_qualifier');
+}
+if (false === defined('SAML_NAMEID_SP_NAME_QUALIFIER_COOKIE')) {
+	define( 'SAML_NAMEID_SP_NAME_QUALIFIER_COOKIE', 'saml_nameid_name_sp_qualifier');
 }
 
 require_once plugin_dir_path(__FILE__)."php/functions.php";

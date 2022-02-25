@@ -30,24 +30,24 @@ $posible_requestedauthncontext_values = array(
 );
 
 
-$opt['strict'] = get_site_option('onelogin_saml_advanced_settings_strict_mode', 'on');
-$opt['debug'] = get_site_option('onelogin_saml_advanced_settings_debug', 'on');
-$opt['sp_entity_id'] = get_site_option('onelogin_saml_advanced_settings_sp_entity_id', 'php-saml');
+$opt['strict'] = get_option('onelogin_saml_advanced_settings_strict_mode', 'on');
+$opt['debug'] = get_option('onelogin_saml_advanced_settings_debug', 'on');
+$opt['sp_entity_id'] = get_option('onelogin_saml_advanced_settings_sp_entity_id', 'php-saml');
 
-$opt['nameIdEncrypted'] = get_site_option('onelogin_saml_advanced_settings_nameid_encrypted', false);
-$opt['authnRequestsSigned'] = get_site_option('onelogin_saml_advanced_settings_authn_request_signed', false);
-$opt['logoutRequestSigned'] = get_site_option('onelogin_saml_advanced_settings_logout_request_signed', false);
-$opt['logoutResponseSigned'] = get_site_option('onelogin_saml_advanced_settings_logout_response_signed', false);
-$opt['wantMessagesSigned'] = get_site_option('onelogin_saml_advanced_settings_want_message_signed', false);
-$opt['wantAssertionsSigned'] = get_site_option('onelogin_saml_advanced_settings_want_assertion_signed', false);
-$opt['wantAssertionsEncrypted'] = get_site_option('onelogin_saml_advanced_settings_want_assertion_encrypted', false);
+$opt['nameIdEncrypted'] = get_option('onelogin_saml_advanced_settings_nameid_encrypted', false);
+$opt['authnRequestsSigned'] = get_option('onelogin_saml_advanced_settings_authn_request_signed', false);
+$opt['logoutRequestSigned'] = get_option('onelogin_saml_advanced_settings_logout_request_signed', false);
+$opt['logoutResponseSigned'] = get_option('onelogin_saml_advanced_settings_logout_response_signed', false);
+$opt['wantMessagesSigned'] = get_option('onelogin_saml_advanced_settings_want_message_signed', false);
+$opt['wantAssertionsSigned'] = get_option('onelogin_saml_advanced_settings_want_assertion_signed', false);
+$opt['wantAssertionsEncrypted'] = get_option('onelogin_saml_advanced_settings_want_assertion_encrypted', false);
 
-$nameIDformat = get_site_option('onelogin_saml_advanced_nameidformat', 'unspecified');
+$nameIDformat = get_option('onelogin_saml_advanced_nameidformat', 'unspecified');
 $opt['NameIDFormat'] = $posible_nameidformat_values[$nameIDformat];
 
 
-$requested_authncontext_values = get_site_option('onelogin_saml_advanced_requestedauthncontext', array());
-if (empty($requested_authncontext_values)) {
+$requested_authncontext_values = get_option('onelogin_saml_advanced_requestedauthncontext', array());
+if ((is_array($requested_authncontext_values) && empty(array_filter($requested_authncontext_values))) || empty($requested_authncontext_values)) {
     $opt['requestedAuthnContext'] = false;
 } else {
     $opt['requestedAuthnContext'] = array();
@@ -58,7 +58,9 @@ if (empty($requested_authncontext_values)) {
     }
 }
 
-$acs_endpoint = get_site_option('onelogin_saml_alternative_acs', false) ? plugins_url( 'alternative_acs.php', dirname( __FILE__ ) ) : wp_login_url() . '?saml_acs';
+$acs_endpoint = get_option('onelogin_saml_alternative_acs', false)
+    ? plugins_url( 'alternative_acs.php', dirname( __FILE__ ) )
+    : add_query_arg( [ 'saml_acs' => '' ], wp_login_url() );
 
 $settings = array (
 
@@ -71,22 +73,22 @@ $settings = array (
             'url' => $acs_endpoint
         ),
         'singleLogoutService' => array (
-            'url' => get_site_url().'/wp-login.php?saml_sls'
+            'url' => add_query_arg( [ 'saml_sls' => '' ], wp_login_url() )
         ),
         'NameIDFormat' => $opt['NameIDFormat'],
-        'x509cert' => get_site_option('onelogin_saml_advanced_settings_sp_x509cert'),
-        'privateKey' => get_site_option('onelogin_saml_advanced_settings_sp_privatekey'),
+        'x509cert' => get_option('onelogin_saml_advanced_settings_sp_x509cert'),
+        'privateKey' => get_option('onelogin_saml_advanced_settings_sp_privatekey'),
     ),
 
     'idp' => array (
-        'entityId' => get_site_option('onelogin_saml_idp_entityid'),
+        'entityId' => get_option('onelogin_saml_idp_entityid'),
         'singleSignOnService' => array (
-            'url' => get_site_option('onelogin_saml_idp_sso'),
+            'url' => get_option('onelogin_saml_idp_sso'),
         ),
         'singleLogoutService' => array (
-            'url' => get_site_option('onelogin_saml_idp_slo'),
+            'url' => get_option('onelogin_saml_idp_slo'),
         ),
-        'x509cert' => get_site_option('onelogin_saml_idp_x509cert'),
+        'x509cert' => get_option('onelogin_saml_idp_x509cert'),
     ),
 
     'security' => array (
@@ -101,9 +103,9 @@ $settings = array (
         'wantNameId' => false,
         'requestedAuthnContext' => $opt['requestedAuthnContext'],
         'relaxDestinationValidation' => true,
-        'lowercaseUrlencoding' => get_site_option('
+        'lowercaseUrlencoding' => get_option('
             onelogin_saml_advanced_idp_lowercase_url_encoding', false),
-        'signatureAlgorithm' => get_site_option('onelogin_saml_advanced_signaturealgorithm', 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'),
-        'digestAlgorithm' => get_site_option('onelogin_saml_advanced_digestalgorithm', 'http://www.w3.org/2000/09/xmldsig#sha1'),
+        'signatureAlgorithm' => get_option('onelogin_saml_advanced_signaturealgorithm', 'http://www.w3.org/2000/09/xmldsig#rsa-sha1'),
+        'digestAlgorithm' => get_option('onelogin_saml_advanced_digestalgorithm', 'http://www.w3.org/2000/09/xmldsig#sha1'),
     )
 );

@@ -171,6 +171,13 @@ function plugin_setting_select_onelogin_saml_account_matcher($network = false) {
 		'<p class="description">'.__('Select what field will be used in order to find the user account. If "email", the plugin will prevent the user from changing their email address in their user profile.', 'onelogin-saml-sso').'</p>';
 }
 
+function plugin_setting_boolean_onelogin_saml_trigger_login_hook($network = false) {
+	$value = $network ? get_site_option('onelogin_saml_trigger_login_hook') : get_option('onelogin_saml_trigger_login_hook');
+	echo '<input type="checkbox" name="onelogin_saml_trigger_login_hook" id="onelogin_saml_trigger_login_hook"
+		  '.($value ? 'checked="checked"': '').'>'.
+		  '<p class="description">'.__('When enabled, the wp_login hook will be triggered.', 'onelogin-saml-sso').'</p>';
+}
+
 function plugin_setting_boolean_onelogin_saml_multirole($network = false) {
     $value = $network ? get_site_option('onelogin_saml_multirole') : get_option('onelogin_saml_multirole');
     echo '<input type="checkbox" name="onelogin_saml_multirole" id="onelogin_saml_multirole"
@@ -214,6 +221,13 @@ function plugin_setting_string_onelogin_saml_attr_mapping_lastname($network = fa
 	$value = $network ? get_site_option('onelogin_saml_attr_mapping_lastname') : get_option('onelogin_saml_attr_mapping_lastname');
 	echo '<input type="text" name="onelogin_saml_attr_mapping_lastname" id="onelogin_saml_attr_mapping_lastname"
 		  value= "'.esc_attr($value).'" size="30">';
+}
+
+function plugin_setting_string_onelogin_saml_attr_mapping_nickname($network = false) {
+	$value = $network ? get_site_option('onelogin_saml_attr_mapping_nickname') : get_option('onelogin_saml_attr_mapping_nickname');
+	echo '<input type="text" name="onelogin_saml_attr_mapping_nickname" id="onelogin_saml_attr_mapping_nickname"
+		  value= "'.esc_attr($value).'" size="30">'.
+		  '<p class="description">'.__("If not provided, default  value is the user's username.");
 }
 
 function plugin_setting_string_onelogin_saml_attr_mapping_rememberme($network = false) {
@@ -749,6 +763,10 @@ function get_onelogin_saml_settings_options() {
 			__('Match Wordpress account by', 'onelogin-saml-sso'),
 			'select'
 		),
+		'onelogin_saml_trigger_login_hook' => array(
+			__('Trigger wp_login hook', 'onelogin-saml-sso'),
+			'boolean'
+		),
 		'onelogin_saml_multirole' => array(
 			__('Multi Role Support', 'onelogin-saml-sso'),
 			'boolean'
@@ -776,6 +794,10 @@ function get_onelogin_saml_settings_attribute_mapping() {
 		),
 		'onelogin_saml_attr_mapping_lastname' =>  array(
 			__('Last Name', 'onelogin-saml-sso'),
+			'string'
+		),
+		'onelogin_saml_attr_mapping_nickname' =>  array(
+			__('Nickname', 'onelogin-saml-sso'),
 			'string'
 		),
 		'onelogin_saml_attr_mapping_role' =>  array(
